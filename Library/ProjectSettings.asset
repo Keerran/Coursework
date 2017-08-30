@@ -464,6 +464,7 @@ PlayerSettings:
   vrEditorSettings: {}
   cloudServicesEnabled:
     Build: 1
+    Collab: 0
     UNet: 1
   cloudProjectId: c01dfdbb-ac05-414e-8ade-f8951b624652
   projectName: Coursework
