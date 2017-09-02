@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Force Arrow
   - Master
+  - Tag
   layers:
   - Default
   - TransparentFX

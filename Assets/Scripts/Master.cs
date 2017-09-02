@@ -1,9 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Master : MonoBehaviour
 {
+	public static Master INSTANCE { get; private set; }
+	
 	private Base selected;
 	
 	public Base Selected
@@ -12,7 +16,7 @@ public class Master : MonoBehaviour
 		{
 			return selected;
 		}
-		private set
+		set
 		{
 			if(value == selected) return;
 			if(value != null)
@@ -20,6 +24,8 @@ public class Master : MonoBehaviour
 			if(selected != null)
 				selected.gameObject.GetComponent<Renderer>().material.shader = Shader.Find("Standard");
 			selected = value;
+			// Fire the selectChange event.
+			if(selectChange != null) selectChange(this.Selected);
 		}
 	}
 
@@ -28,50 +34,31 @@ public class Master : MonoBehaviour
 	public event onSelectChange selectChange;
 
 	// Use this for initialization
-	void Start()
+	void Awake()
 	{
-		
+		INSTANCE = this;
 	}
 	
 	// Update is called once per frame
 	void Update()
 	{
+		if(UI.UIHover) return;
 		// Gets a ray to whatever the mouse is pointing to.
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 		RaycastHit info;
 		// If the ray hits anything...
-		if(Physics.Raycast(ray, out info))
+		if(Physics.Raycast(ray, out info) && Input.GetMouseButtonDown(0))
 		{
-			// get the arrow script...
-			Arrow arrow = info.transform.GetComponent<Arrow>();
-			// and if the LMB is pressed...
-			if(Input.GetMouseButton(0))
+			if(!info.transform.GetComponent<Base>())
 			{
-				// and the object had an arrow script...
-				if(arrow != null)
-				{
-					// then call the onClicked method of that arrow.
-					arrow.onClicked();
-				}
-				else
-				{
-					if(Selected == info.transform.GetComponent<Base>()) return;
-					// Change the selected variable to the object that was clicked on.
-					this.Selected = info.transform.GetComponent<Base>();
-					// Fire the selectChange event.
-					if(selectChange != null) selectChange(Selected);
-
-					/*
-					// Otherwise if the script isn't there, then check for a MouseDrag script.
-					MouseDrag mouseDrag = info.transform.GetComponent<MouseDrag>();
-					if(mouseDrag != null && !mouseDrag.doMove)
-					{
-						// Sets the mode of the MouseDrag to drag anywhere on the xz plane.
-						mouseDrag.doMove = true;
-						mouseDrag.dir = null;
-					}*/
-				}
+				this.Selected = null;
 			}
+			// Change the selected variable to the object that was clicked on.
+			this.Selected = info.transform.GetComponent<Base>();
+		}
+		else if(Input.GetMouseButtonDown(0))
+		{
+			this.Selected = null;
 		}
 	}
 }

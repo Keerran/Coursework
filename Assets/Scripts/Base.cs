@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Base : MonoBehaviour
 {
@@ -11,8 +12,8 @@ public class Base : MonoBehaviour
 	private Vector3 vel;
 
 	[ShowValue(order=0)]
-	public int Mass { get; set; }
-
+	public float Mass { get; set; }
+	
 	[SerializeField]
 	private Vector3 force;
 	
@@ -33,6 +34,8 @@ public class Base : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		if(Mass == 0) return;
+		
 		float td = Time.deltaTime;
 		vel.x += force.x * td / Mass;
 		vel.y += force.y * td / Mass;
@@ -49,7 +52,7 @@ public class Base : MonoBehaviour
 		if(move)
 			pos = hitInfo.point + (this.transform.localScale/2);*/
 
-		//this.transform.position = pos;
+		this.transform.position = pos;
 	}
 
 	public void resetForce()
@@ -98,8 +101,6 @@ public class Base : MonoBehaviour
 
 		// This essentially sets the magnitude of the vector to the radius of the sphere.
 		// This is the position of the arrow.
-		Vector3 f = force.normalized * 0.49f;
-
-		arrow.transform.localPosition = f;
+		arrow.transform.localPosition = force.normalized * 0.49f;
 	}
 }

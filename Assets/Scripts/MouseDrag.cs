@@ -2,9 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class MouseDrag : MonoBehaviour
-{
+public class MouseDrag : MonoBehaviour, IDragHandler, IBeginDragHandler
+ {
 	/// The direction to move in.
 	public Vector3? dir;
 	/// Should the object move to the mouse position.
@@ -54,15 +55,32 @@ public class MouseDrag : MonoBehaviour
 					// Scales that point so that the object only moves in the required direction.
 					point.Scale((Vector3) dir);
 					posDir.Scale((Vector3) dir);
-					
+
 					// Offsets the position to account for the position of the arrow.
 					posDir += (Vector3) dir;
 				}
-				
+
 				// Sets the position.
 				this.transform.position += point - posDir;
 			}
 		}
 	}
-}
+	 
+	 public void OnBeginDrag(PointerEventData eventData)
+	 {
+		 // Otherwise if the script isn't there, then check for a MouseDrag script.
+		 MouseDrag mouseDrag = eventData.pointerDrag.transform.GetComponent<MouseDrag>();
+		 if(mouseDrag != null && !mouseDrag.doMove)
+		 {
+			 // Sets the mode of the MouseDrag to drag anywhere on the xz plane.
+			 mouseDrag.doMove = true;
+			 mouseDrag.dir = null;
+		 }
+	 }
+
+	 public void OnDrag(PointerEventData eventData)
+	 {
+		 
+	 }
+ }
  

@@ -9,9 +9,15 @@ public class Friction : MonoBehaviour
 	
 	//Coefficient of Friction
 	[SerializeField]
+	[ShowValue]
 	public float Coefficient {
 		get { return coefficient; }
-		set { coefficient = Mathf.Clamp(value, 0, 1); }
+		set { coefficient = Mathf.Clamp(value, 0f, 1f); }
+	}
+
+	void Start()
+	{
+		UI.registerClass<Friction>();
 	}
 
 	public void applyForce(Base obj)
