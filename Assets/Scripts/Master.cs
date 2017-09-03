@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
@@ -7,9 +8,12 @@ using UnityEngine.EventSystems;
 public class Master : MonoBehaviour
 {
 	public static Master INSTANCE { get; private set; }
+
+	public bool isPlaying;
+	public float speed = 1;
 	
 	private Base selected;
-	
+
 	public Base Selected
 	{
 		get

@@ -34,16 +34,19 @@ public class Base : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		if(!Master.INSTANCE.isPlaying) return;
 		if(Mass == 0) return;
 		
-		float td = Time.deltaTime;
-		vel.x += force.x * td / Mass;
+		float td = Time.deltaTime * Master.INSTANCE.speed;
+		vel = force * (td / Mass);
+		/*vel.x += force.x * td / Mass;
 		vel.y += force.y * td / Mass;
-		vel.z += force.z * td / Mass;
+		vel.z += force.z * td / Mass;*/
 
 		Vector3 pos = this.transform.position;
-		//Vector3 offset = vel * td;
-		pos.x += vel.x * td;
+		pos += vel * td;
+		Debug.Log(Master.INSTANCE.speed);
+		/*pos.x += vel.x * td;
 		pos.y += vel.y * td;
 		pos.z += vel.z * td;
 		

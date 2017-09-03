@@ -42,18 +42,57 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 			{
 					case "Selection":
 						selection = t.gameObject;
+						selection.GetComponent<Image>().enabled = false;
 						break;
 					case "Time":
 						time = t.gameObject;
 						break;
 			}
 		}
+
+		foreach(Transform t in time.transform)
+		{
+			switch(t.name)
+			{
+				case "Play":
+					t.GetComponent<Button>().onClick.AddListener(() => { onPlayClick(t); });
+					break;
+				case "Speed":
+					InputField input = t.GetComponentInChildren<InputField>();
+					input.onValueChanged.AddListener(value =>
+					{
+						Master.INSTANCE.speed = float.Parse(value);
+					});
+					input.text = "1.0";
+					break;
+			}
+		}
+	}
+
+	public void onPlayClick(Transform t)
+	{
+		Master.INSTANCE.isPlaying = !Master.INSTANCE.isPlaying;
+		
+		if(Master.INSTANCE.isPlaying)
+		{
+			t.GetComponentInChildren<Text>().text = "Pause";
+		}
+		else
+		{
+			t.GetComponentInChildren<Text>().text = "Play";
+		}
+		
 	}
 
 	public void selectChange(Base selected)
 	{
 		foreach(Transform child in selection.transform) Destroy(child.gameObject);
-		if(selected == null) return;
+		if(selected == null)
+		{
+			selection.GetComponent<Image>().enabled = false;
+			return;
+		}
+		selection.GetComponent<Image>().enabled = true;
 		int y = 0;
 		foreach(Type clazz in classes)
 		{
