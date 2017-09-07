@@ -45,7 +45,6 @@ public class Base : MonoBehaviour
 
 		Vector3 pos = this.transform.position;
 		pos += vel * td;
-		Debug.Log(Master.INSTANCE.speed);
 		/*pos.x += vel.x * td;
 		pos.y += vel.y * td;
 		pos.z += vel.z * td;

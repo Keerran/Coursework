@@ -65,6 +65,23 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 					});
 					input.text = "1.0";
 					break;
+				case "Add":
+					Button button = t.GetComponent<Button>();
+					button.onClick.AddListener(() =>
+					{
+						GameObject g = (GameObject)Instantiate(Resources.Load("Object"));
+						RaycastHit info;
+						Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width, Screen.height) / 2);
+						if(Physics.Raycast(ray, out info, 10))
+						{
+							g.transform.position = info.point;
+						}
+						else
+						{
+							g.transform.position = ray.origin + ray.direction * 2;
+						}
+					});
+					break;
 			}
 		}
 	}
