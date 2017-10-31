@@ -89,7 +89,6 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 	public void onPlayClick(Transform t)
 	{
 		Master.INSTANCE.isPlaying = !Master.INSTANCE.isPlaying;
-		
 		if(Master.INSTANCE.isPlaying)
 		{
 			t.GetComponentInChildren<Text>().text = "Pause";
@@ -115,6 +114,7 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 		{
 			y += 10;
 			var component = selected.GetComponent(clazz);
+			component = component == null ? component : selected.GetComponentInChildren(clazz);
 			if(component != null)
 			{
 				PropertyInfo[] values = ShowValue.getValues(clazz);
@@ -123,7 +123,7 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 					y += 22;
 					drawValues(value, selected.gameObject.GetComponent(clazz), y);
 				}
-			}
+			}			
 		}
 	}
 
@@ -187,21 +187,24 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 			x.onValueChanged.AddListener(val =>
 			{
 				if(val == null) return;
-				Vector3 v = (Vector3) value.GetValue(selected, null) + new Vector3(float.Parse(val), 0, 0);
+				Vector3 v = (Vector3) value.GetValue(selected, null);
+				v.x = float.Parse(val);
 				value.SetValue(selected, v, null);
 			});
 			
 			y.onValueChanged.AddListener(val =>
 			{
 				if(val == null ) return;
-				Vector3 v = (Vector3) value.GetValue(selected, null) + new Vector3(0, float.Parse(val), 0);
+				Vector3 v = (Vector3) value.GetValue(selected, null);
+				v.y = float.Parse(val);
 				value.SetValue(selected, v, null);
 			});
 			
 			z.onValueChanged.AddListener(val =>
 			{
 				if(val == null) return;
-				Vector3 v = (Vector3) value.GetValue(selected, null) + new Vector3(0, 0, float.Parse(val));
+				Vector3 v = (Vector3) value.GetValue(selected, null);
+				v.z = float.Parse(val);
 				value.SetValue(selected, v, null);
 			});
 

@@ -48,7 +48,7 @@ public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
 	public void OnPointerDown(PointerEventData eventData)
 	{
-		MouseDrag parent = GetComponentInParent<MouseDrag>();
+		MouseDrag parent = this.transform.parent.GetComponentInChildren<MouseDrag>();
 		if(parent.doMove) return;
 		parent.doMove = true;
 		switch(axis)

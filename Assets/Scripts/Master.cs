@@ -9,7 +9,13 @@ public class Master : MonoBehaviour
 {
 	public static Master INSTANCE { get; private set; }
 
-	public bool isPlaying;
+	private bool playing;
+
+	public bool isPlaying
+	{
+		get { return playing; }
+		set { playing = value; playPause(playing); }
+	}
 	public float speed = 1;
 	
 	private Base selected;
@@ -24,9 +30,9 @@ public class Master : MonoBehaviour
 		{
 			if(value == selected) return;
 			if(value != null)
-				value.gameObject.GetComponent<Renderer>().material.shader = Shader.Find("Custom/Outline");
+				value.transform.FindChild("Sphere").GetComponent<Renderer>().material.shader = Shader.Find("Custom/Outline");
 			if(selected != null)
-				selected.gameObject.GetComponent<Renderer>().material.shader = Shader.Find("Standard");
+				selected.transform.FindChild("Sphere").GetComponent<Renderer>().material.shader = Shader.Find("Standard");
 			selected = value;
 			// Fire the selectChange event.
 			if(selectChange != null) selectChange(this.Selected);
@@ -34,9 +40,11 @@ public class Master : MonoBehaviour
 	}
 
 	public delegate void onSelectChange(Base selected);
+	public delegate void onPlayPause(bool playing);
 
 	public event onSelectChange selectChange;
-
+	public event onPlayPause playPause;
+	
 	// Use this for initialization
 	void Awake()
 	{
@@ -53,12 +61,13 @@ public class Master : MonoBehaviour
 		// If the ray hits anything...
 		if(Physics.Raycast(ray, out info) && Input.GetMouseButtonDown(0))
 		{
-			if(!info.transform.GetComponent<Base>())
+			if(info.transform.name != "Sphere") return;
+			if(info.transform.parent == null || info.transform.parent.GetComponent<Base>() == null)
 			{
 				this.Selected = null;
 			}
 			// Change the selected variable to the object that was clicked on.
-			this.Selected = info.transform.GetComponent<Base>();
+			this.Selected = info.transform.parent.GetComponent<Base>();
 		}
 		else if(Input.GetMouseButtonDown(0))
 		{

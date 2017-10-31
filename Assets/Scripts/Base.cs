@@ -23,11 +23,18 @@ public class Base : MonoBehaviour
 		get { return force; }
 		set { force = value; setArrow(); }
 	}
+
+	public Vector3 Velocity { get; set; }
+
+	static Base()
+	{
+		UI.registerClass<Base>();		
+	}
 	
 	// Use this for initialization
 	void Start()
 	{
-		UI.registerClass<Base>();
+		Master.INSTANCE.playPause += playPause;
 		//resetForce();
 	}
 
@@ -98,11 +105,22 @@ public class Base : MonoBehaviour
 		float zAngle = Vector3.Angle(Vector3.forward, Vector3.Project(Vector3.forward ,force));*/
 
 		// Sets the rotation of the arrow to point where the force is going.
-		arrow.transform.rotation = Quaternion.FromToRotation(transform.forward, force);;
+		arrow.transform.rotation = Quaternion.FromToRotation(transform.forward, force);
 		//arrow.transform.localEulerAngles = new Vector3(xAngle, yAngle, zAngle - 45);
 
 		// This essentially sets the magnitude of the vector to the radius of the sphere.
 		// This is the position of the arrow.
 		arrow.transform.localPosition = force.normalized * 0.49f;
+	}
+
+	public void playPause(bool playing)
+	{
+		foreach(Transform t in transform)
+		{
+			if(t.name != "Sphere")
+			{
+				t.gameObject.SetActive(!playing);
+			}
+		}
 	}
 }

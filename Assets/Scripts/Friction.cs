@@ -15,9 +15,14 @@ public class Friction : MonoBehaviour
 		set { coefficient = Mathf.Clamp(value, 0f, 1f); }
 	}
 
-	void Start()
+	static Friction()
 	{
 		UI.registerClass<Friction>();
+	}
+
+	void Start()
+	{
+		
 	}
 
 	public void applyForce(Base obj)
