@@ -8,15 +8,20 @@ using UnityEngine.EventSystems;
 
 public class Base : MonoBehaviour
 {
+	//Stores the velocity vector.
 	[SerializeField]
 	private Vector3 vel;
 
+	// Stores the mass of the object.
 	[ShowValue(order=0)]
 	public float Mass { get; set; }
 	
 	[SerializeField]
 	private Vector3 force;
 	
+	// Stores the force on the object as a 3D vector
+	// After being changed it will change the direction of the
+	// force arrow appropriately.
 	[ShowValue(order=1)]
 	public Vector3 Force
 	{
@@ -27,6 +32,7 @@ public class Base : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
+		// Registers this class as one that should show up in the UI.
 		UI.registerClass<Base>();
 		//resetForce();
 	}
@@ -34,10 +40,16 @@ public class Base : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		// Makes sure nothing happens if the game is paused.
 		if(!Master.INSTANCE.isPlaying) return;
+		// If the mass is not set, it will default to 0,
+		// which will cause a divide by zero error.
 		if(Mass == 0) return;
 		
+		// Scales the time between the last frame by the speed set by the user
+		// to get the in-game time between the last frame.
 		float td = Time.deltaTime * Master.INSTANCE.speed;
+		// Uses a = F/m and a = dv/dt to get velocity after td seconds.
 		vel = force * (td / Mass);
 		/*vel.x += force.x * td / Mass;
 		vel.y += force.y * td / Mass;
