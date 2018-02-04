@@ -29,6 +29,9 @@ public class Base : MonoBehaviour
 		set { force = value; setArrow(); }
 	}
 	
+	[ShowValue(order=2)]
+	public Vector3 Velocity { get; set; }
+
 	// Use this for initialization
 	void Start()
 	{
@@ -50,13 +53,13 @@ public class Base : MonoBehaviour
 		// to get the in-game time between the last frame.
 		float td = Time.deltaTime * Master.INSTANCE.speed;
 		// Uses a = F/m and a = dv/dt to get velocity after td seconds.
-		vel = force * (td / Mass);
+		Velocity = force * (td / Mass);
 		/*vel.x += force.x * td / Mass;
 		vel.y += force.y * td / Mass;
 		vel.z += force.z * td / Mass;*/
 
 		Vector3 pos = this.transform.position;
-		pos += vel * td;
+		pos += Velocity * td;
 		/*pos.x += vel.x * td;
 		pos.y += vel.y * td;
 		pos.z += vel.z * td;
