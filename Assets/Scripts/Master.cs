@@ -10,12 +10,22 @@ public class Master : MonoBehaviour
 	// This is the only instance of master.
 	public static Master INSTANCE { get; private set; }
 
+	public delegate void onSelectChange(Base selected);
+	public delegate void onPlayPause(bool playing);
+
+	public event onSelectChange selectChange;
+	public event onPlayPause playPause;
+
 	private bool playing;
 
 	public bool isPlaying
 	{
 		get { return playing; }
-		set { playing = value; playPause(playing); }
+		set 
+		{
+			playing = value;
+			playPause(playing);
+		}
 	}
 	public float speed = 1;
 	
@@ -40,12 +50,6 @@ public class Master : MonoBehaviour
 		}
 	}
 
-	public delegate void onSelectChange(Base selected);
-	public delegate void onPlayPause(bool playing);
-
-	public event onSelectChange selectChange;
-	public event onPlayPause playPause;
-	
 	// Use this for initialization
 	void Awake()
 	{

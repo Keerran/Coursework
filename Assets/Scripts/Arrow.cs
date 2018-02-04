@@ -31,10 +31,16 @@ public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 	/// Use this for initialization
 	void Start()
 	{
+		Master.INSTANCE.playPause += onPlayPause;
 		// Set the color of the arrow depending on its axis.
 		GetComponent<Renderer>().material.color = getColor(axis);
 	}
 	
+	public void onPlayPause(bool isPlaying)
+	{
+		this.gameObject.SetActive(!isPlaying);
+	}
+
 	/// Update is called once per frame
 	void Update()
 	{

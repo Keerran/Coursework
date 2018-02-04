@@ -34,7 +34,7 @@ public class Base : MonoBehaviour
 	public Vector3 Velocity { get; set; }
 
 	// Use this for initialization
-	void Start()
+	static Base()
 	{
 		// Registers this class as one that should show up in the UI.
 		UI.registerClass<Base>();
@@ -54,7 +54,7 @@ public class Base : MonoBehaviour
 		// to get the in-game time between the last frame.
 		float td = Time.deltaTime * Master.INSTANCE.speed;
 		// Uses a = F/m and a = dv/dt to get velocity after td seconds.
-		Velocity = force * (td / Mass);
+		Velocity += force * (td / Mass);
 		/*vel.x += force.x * td / Mass;
 		vel.y += force.y * td / Mass;
 		vel.z += force.z * td / Mass;*/
