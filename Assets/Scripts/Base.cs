@@ -8,6 +8,8 @@ using UnityEngine.EventSystems;
 
 public class Base : MonoBehaviour
 {
+	public bool collided;
+
 	[SerializeField]
 	private Vector3 vel;
 
@@ -24,6 +26,7 @@ public class Base : MonoBehaviour
 		set { force = value; setArrow(); }
 	}
 
+	[ShowValue(order=2)]
 	public Vector3 Velocity { get; set; }
 
 	static Base()
@@ -36,6 +39,8 @@ public class Base : MonoBehaviour
 	{
 		Master.INSTANCE.playPause += playPause;
 		//resetForce();
+		Mass = 1;
+		Velocity = new Vector3(1,0,0);
 	}
 
 	// Update is called once per frame
@@ -45,13 +50,13 @@ public class Base : MonoBehaviour
 		if(Mass == 0) return;
 		
 		float td = Time.deltaTime * Master.INSTANCE.speed;
-		vel = force * (td / Mass);
+		Velocity += force * (td / Mass);
 		/*vel.x += force.x * td / Mass;
 		vel.y += force.y * td / Mass;
 		vel.z += force.z * td / Mass;*/
 
 		Vector3 pos = this.transform.position;
-		pos += vel * td;
+		pos += Velocity * td;
 		/*pos.x += vel.x * td;
 		pos.y += vel.y * td;
 		pos.z += vel.z * td;
