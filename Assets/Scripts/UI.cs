@@ -102,21 +102,33 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
 	public void selectChange(Base selected)
 	{
+		// Resets the selection UI.
 		foreach(Transform child in selection.transform) Destroy(child.gameObject);
+		// If nothing is selected, then get turn off the selection pane and return.
 		if(selected == null)
 		{
 			selection.GetComponent<Image>().enabled = false;
 			return;
 		}
+		// Makes sure the selection pane is turned on if something is selected.
 		selection.GetComponent<Image>().enabled = true;
+		// This is the y coordinate of each component, it increases by 10 between each class
+		// and 22 between each component in the class.
 		int y = 0;
+		// Loops through each class registered for the UI.
 		foreach(Type clazz in classes)
 		{
 			y += 10;
+			// Gets the instance of the current class in the selected object.
 			var component = selected.GetComponent(clazz);
+<<<<<<< HEAD
 			component = component == null ? component : selected.GetComponentInChildren(clazz);
+=======
+			// If the selected object actually has that class.
+>>>>>>> 205ebbb32de5b37b0923f226f55faeb90ae0e372
 			if(component != null)
 			{
+				// Gets each property with the show value in that class.
 				PropertyInfo[] values = ShowValue.getValues(clazz);
 				foreach(PropertyInfo value in values)
 				{

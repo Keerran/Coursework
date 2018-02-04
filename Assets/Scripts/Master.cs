@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 
 public class Master : MonoBehaviour
 {
+	// This is the only instance of master.
 	public static Master INSTANCE { get; private set; }
 
 	private bool playing;
@@ -54,6 +55,8 @@ public class Master : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		// Makes sure that if you click on something in the UI,
+		// then it won't try to select anything.
 		if(UI.UIHover) return;
 		// Gets a ray to whatever the mouse is pointing to.
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

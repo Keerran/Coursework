@@ -8,55 +8,55 @@ using UnityEngine.EventSystems;
 
 public class Base : MonoBehaviour
 {
-	//Stores the velocity vector.
+	public bool collided;
+
 	[SerializeField]
 	private Vector3 vel;
 
-	// Stores the mass of the object.
 	[ShowValue(order=0)]
 	public float Mass { get; set; }
 	
 	[SerializeField]
 	private Vector3 force;
 	
-	// Stores the force on the object as a 3D vector
-	// After being changed it will change the direction of the
-	// force arrow appropriately.
 	[ShowValue(order=1)]
 	public Vector3 Force
 	{
 		get { return force; }
 		set { force = value; setArrow(); }
 	}
+
+	[ShowValue(order=2)]
+	public Vector3 Velocity { get; set; }
+
+	static Base()
+	{
+		UI.registerClass<Base>();		
+	}
 	
 	// Use this for initialization
 	void Start()
 	{
-		// Registers this class as one that should show up in the UI.
-		UI.registerClass<Base>();
+		Master.INSTANCE.playPause += playPause;
 		//resetForce();
+		Mass = 1;
+		Velocity = new Vector3(1,0,0);
 	}
 
 	// Update is called once per frame
 	void Update()
 	{
-		// Makes sure nothing happens if the game is paused.
 		if(!Master.INSTANCE.isPlaying) return;
-		// If the mass is not set, it will default to 0,
-		// which will cause a divide by zero error.
 		if(Mass == 0) return;
 		
-		// Scales the time between the last frame by the speed set by the user
-		// to get the in-game time between the last frame.
 		float td = Time.deltaTime * Master.INSTANCE.speed;
-		// Uses a = F/m and a = dv/dt to get velocity after td seconds.
-		vel = force * (td / Mass);
+		Velocity += force * (td / Mass);
 		/*vel.x += force.x * td / Mass;
 		vel.y += force.y * td / Mass;
 		vel.z += force.z * td / Mass;*/
 
 		Vector3 pos = this.transform.position;
-		pos += vel * td;
+		pos += Velocity * td;
 		/*pos.x += vel.x * td;
 		pos.y += vel.y * td;
 		pos.z += vel.z * td;
@@ -110,11 +110,22 @@ public class Base : MonoBehaviour
 		float zAngle = Vector3.Angle(Vector3.forward, Vector3.Project(Vector3.forward ,force));*/
 
 		// Sets the rotation of the arrow to point where the force is going.
-		arrow.transform.rotation = Quaternion.FromToRotation(transform.forward, force);;
+		arrow.transform.rotation = Quaternion.FromToRotation(transform.forward, force);
 		//arrow.transform.localEulerAngles = new Vector3(xAngle, yAngle, zAngle - 45);
 
 		// This essentially sets the magnitude of the vector to the radius of the sphere.
 		// This is the position of the arrow.
 		arrow.transform.localPosition = force.normalized * 0.49f;
+	}
+
+	public void playPause(bool playing)
+	{
+		foreach(Transform t in transform)
+		{
+			if(t.name != "Sphere")
+			{
+				t.gameObject.SetActive(!playing);
+			}
+		}
 	}
 }

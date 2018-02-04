@@ -8,9 +8,11 @@ using UnityEngine.UI;
 
 public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
+	// This holds which axis the arrow moves the object in.
 	[SerializeField]
 	private Axis axis;
 
+	// This returns the color the arrow should be from the axis variable.
 	public static Color getColor(Axis axis)
 	{
 		switch(axis)
@@ -37,6 +39,7 @@ public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 	void Update()
 	{
 		Renderer renderer = GetComponent<Renderer>();
+		// This sets the arrow color back to what it should be after it has been pressed.
 		if(renderer.material.color == Color.yellow && Input.GetMouseButtonUp(0))
 			renderer.material.color = getColor(axis);
 	}
@@ -46,6 +49,8 @@ public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 		X, Y, Z
 	}
 
+	// This function is implemented from the IPointerDownHandler, and
+	// so this function will be called whenever the pointer is clicked on this object.
 	public void OnPointerDown(PointerEventData eventData)
 	{
 		MouseDrag parent = this.transform.parent.GetComponentInChildren<MouseDrag>();
