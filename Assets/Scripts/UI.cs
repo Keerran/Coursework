@@ -121,11 +121,8 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 			y += 10;
 			// Gets the instance of the current class in the selected object.
 			var component = selected.GetComponent(clazz);
-<<<<<<< HEAD
 			component = component == null ? component : selected.GetComponentInChildren(clazz);
-=======
 			// If the selected object actually has that class.
->>>>>>> 205ebbb32de5b37b0923f226f55faeb90ae0e372
 			if(component != null)
 			{
 				// Gets each property with the show value in that class.
