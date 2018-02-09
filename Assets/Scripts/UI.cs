@@ -10,9 +10,12 @@ using UnityEngine.UI;
 
 public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
+	// A boolean that shows whether the UI is currently being hovered over.
 	public static bool UIHover;
 
+	// Holds the selection section of the UI.
 	private GameObject selection;
+	// Holds the time section of the UI.
 	private GameObject time;
 	
 	// This is a list of all the classes that should show up in the UI.
@@ -63,6 +66,7 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 					{
 						Master.INSTANCE.speed = float.Parse(value);
 					});
+					// Sets the default speed to 1.
 					input.text = "1.0";
 					break;
 				case "Add":
