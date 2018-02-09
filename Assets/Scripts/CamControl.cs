@@ -36,7 +36,9 @@ public class CamControl : MonoBehaviour
 			deltaMouse *= sensitivity;
 			float x = transform.eulerAngles.x - deltaMouse.y;
 			float y = transform.eulerAngles.y + deltaMouse.x;
-			if(x < 270 && x > 90)
+			if(x < 90) x = 90f;
+			if(x > 270) x = 270f;
+			/*if(x < 270 && x > 90)
 			{
 				if(Mathf.Abs(x - 270) > Mathf.Abs(x - 90))
 				{
@@ -46,7 +48,7 @@ public class CamControl : MonoBehaviour
 				{
 					x = 270f;
 				}
-			}
+			}*/
 			deltaMouse = new Vector3(x, y, 0);
 			transform.eulerAngles = deltaMouse;
 			lastMouse = Input.mousePosition;
