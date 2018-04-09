@@ -20,11 +20,11 @@ public class MouseDrag : MonoBehaviour, IDragHandler, IBeginDragHandler
 	/// Update is called once per frame
 	void Update()
 	{
-		if(doMove)
+		if(doMove && !Master.INSTANCE.isPlaying)
 		{
 			if(!Input.GetMouseButton(0))
 			{
-				// Stops moving is the mouse button is no longer held.
+				// Stops moving if the mouse button is no longer held.
 				doMove = false;
 			}
 			

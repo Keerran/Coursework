@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Debug = UnityEngine.Debug;
 
-public class Base : MonoBehaviour
+public class Base : Selectable
 {
+	Transform arrow;
 	public bool collided;
 	//Stores the velocity vector.
 	[SerializeField]
@@ -41,55 +45,13 @@ public class Base : MonoBehaviour
 		//resetForce();
 	}
 
-	// Update is called once per frame
-	void Update()
+	void Start()
 	{
-		// Makes sure nothing happens if the game is paused.
-		if(!Master.INSTANCE.isPlaying) return;
-		// If the mass is not set, it will default to 0,
-		// which will cause a divide by zero error.
-		if(Mass == 0) return;
-		
-		// Scales the time between the last frame by the speed set by the user
-		// to get the in-game time between the last frame.
-		float td = Time.deltaTime * Master.INSTANCE.speed;
-		// Uses a = F/m and a = dv/dt to get velocity after td seconds.
-		Velocity += force * (td / Mass);
-		/*vel.x += force.x * td / Mass;
-		vel.y += force.y * td / Mass;
-		vel.z += force.z * td / Mass;*/
-
-		Vector3 pos = this.transform.position;
-		pos += Velocity * td;
-		/*pos.x += vel.x * td;
-		pos.y += vel.y * td;
-		pos.z += vel.z * td;
-		
-		/*RaycastHit hitInfo = new RaycastHit();
-		bool move = Physics.Raycast(pos, offset.normalized, out hitInfo, offset.magnitude);
-		if(move)
-			pos = hitInfo.point + (this.transform.localScale/2);*/
-
-		this.transform.position = pos;
-	}
-
-	public void resetForce()
-	{
-		force = new Vector3(0, 0, 0); //-this.mass * Constants.g, 0);
-	}
-
-	public void setForce(int magnitude, Vector3 angle)
-	{
-		float x = magnitude * Mathf.Cos(angle.x);
-		float y = magnitude * Mathf.Cos(angle.y);
-		float z = magnitude * Mathf.Cos(angle.z);
-
-		force = new Vector3(x, y, z);
-	}
-
-	public void setArrow()
-	{
-		Transform arrow = null;
+		Mass = 1;
+		resetForce();
+		arrow = null;
+		Master.INSTANCE.playPause += onPlayPause;
+		Master.INSTANCE.trailChange += onTrailChange;
 		// Goes through every child object of this object.
 		foreach(Transform transform in transform)
 		{
@@ -107,8 +69,106 @@ public class Base : MonoBehaviour
 			Debug.LogError("Error in setting force: could not find Force Arrow");
 			return;
 		}
+		arrow.gameObject.SetActive(force == Vector3.zero);
+	}
 
+	// Update is called once per frame
+	void LateUpdate()
+	{
+		// Makes sure nothing happens if the game is paused.
+		if(!Master.INSTANCE.isPlaying) return;
+		// If the mass is not set, it will default to 0,
+		// which will cause a divide by zero error.
+		if(Mass == 0) return;
+		Vector3 pos = this.transform.position;
 		
+		// Scales the time between the last frame by the speed set by the user
+		// to get the in-game time between the last frame.
+		float td = Time.deltaTime * Master.INSTANCE.speed;
+		// Uses a = F/m and a = dv/dt to get velocity after td seconds.
+		/*vel.x += force.x * td / Mass;
+		vel.y += force.y * td / Mass;
+		vel.z += force.z * td / Mass;*/
+		Velocity += force * (td / Mass);
+		Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5f, 1 << 8);
+		
+		RaycastHit hit;
+		bool didHit = Physics.SphereCast(pos,0.5f,Velocity.normalized, out hit, (Velocity*td).magnitude, 1 << 8);
+		if(colliders.Length > 0 || didHit)
+		{
+			float min = 0;
+			if(didHit)
+			{
+				min = hit.distance;
+			}
+			foreach(Collider collider in colliders)
+			{
+				Vector3 point = collider.ClosestPoint(transform.position);
+				float u = Vector3.Dot(Velocity, (point - transform.position).normalized);
+				if(u < 0)
+				{
+					min = 0;
+				}
+				else
+				{
+					Velocity -= u * (point - transform.position).normalized;
+				}
+				pos += Velocity * td;
+			}
+			pos += Velocity.normalized * min;
+		}
+		else
+		{
+			pos += Velocity * td;
+		}
+		/*pos.x += vel.x * td;
+		pos.y += vel.y * td;
+		pos.z += vel.z * td;
+		
+		/*RaycastHit hitInfo = new RaycastHit();
+		bool move = Physics.Raycast(pos, offset.normalized, out hitInfo, offset.magnitude);
+		if(move)
+			pos = hitInfo.point + (this.transform.localScale/2);*/
+		
+		this.transform.position = pos;
+	}
+
+	public void onPlayPause(bool playing)
+	{
+		bool t = playing && Master.INSTANCE.Trail;
+		TrailRenderer trailRenderer = GetComponent<TrailRenderer>();
+		trailRenderer.enabled = t;
+		trailRenderer.Clear();
+		bool f = !playing && force == Vector3.zero;
+		arrow.gameObject.SetActive(f);
+	}
+
+	public void onTrailChange(bool trail)
+	{
+		if(!Master.INSTANCE.isPlaying) return;
+		TrailRenderer trailRenderer = GetComponent<TrailRenderer>();
+		trailRenderer.enabled = trail;
+		trailRenderer.Clear();
+	}
+
+	public void resetForce()
+	{
+		force = new Vector3(0, -this.Mass * Constants.g, 0);
+	}
+
+	public void setForce(int magnitude, Vector3 angle)
+	{
+		float x = magnitude * Mathf.Cos(angle.x);
+		float y = magnitude * Mathf.Cos(angle.y);
+		float z = magnitude * Mathf.Cos(angle.z);
+
+		force = new Vector3(x, y, z);
+	}
+
+	public void setArrow()
+	{
+		
+		arrow.gameObject.SetActive(force == Vector3.zero);
 		/*float xAngle = Vector3.Angle(Vector3.right, Vector3.Project(Vector3.right,force));
 		float yAngle = Vector3.Angle(Vector3.up, Vector3.Project(Vector3.up,force));
 		float zAngle = Vector3.Angle(Vector3.forward, Vector3.Project(Vector3.forward ,force));*/

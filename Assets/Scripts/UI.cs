@@ -14,6 +14,7 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
 	private GameObject selection;
 	private GameObject time;
+	private GameObject restitution;
 	
 	// This is a list of all the classes that should show up in the UI.
 	private static List<Type> classes = new List<Type>();
@@ -34,7 +35,7 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 	// Use this for initialization
 	void Start ()
 	{
-		Master.INSTANCE.selectChange += selectChange;
+		//Master.INSTANCE.selectChange += selectChange;
 
 		foreach(Transform t in transform)
 		{
@@ -63,9 +64,25 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 					{
 						Master.INSTANCE.speed = float.Parse(value);
 					});
+					input.onEndEdit.AddListener(value =>
+					{
+						input.text = Master.INSTANCE.speed.ToString();
+					});
 					input.text = "1.0";
 					break;
-				case "Add":
+				case "Restitution":
+					InputField i = t.GetComponentInChildren<InputField>();
+					i.onValueChanged.AddListener(value =>
+					{
+						Col.E = float.Parse(value);
+					});
+					i.onEndEdit.AddListener(value =>
+					{
+						i.text = Col.E.ToString();
+					});
+					i.text = "1.0";
+					break;
+				case "Add Ball":
 					Button button = t.GetComponent<Button>();
 					button.onClick.AddListener(() =>
 					{
@@ -74,12 +91,37 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 						Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width, Screen.height) / 2);
 						if(Physics.Raycast(ray, out info, 10))
 						{
-							g.transform.position = info.point;
+							g.transform.position = info.point + info.normal.normalized * 0.5f;
 						}
 						else
 						{
 							g.transform.position = ray.origin + ray.direction * 2;
 						}
+						if(Master.INSTANCE.isPlaying)
+						{
+							foreach(Transform a in g.transform)
+							{
+								Arrow arrow = a.GetComponent<Arrow>();
+								if(arrow != null)
+								{
+									arrow.onPlayPause(false);
+								}
+							}
+						}
+					});
+					break;
+				case "Add Plane":
+					Button b = t.GetComponent<Button>();
+					b.onClick.AddListener(() =>
+					{
+						Instantiate(Resources.Load("Plane"));
+					});
+					break;
+				case "Trail":
+					Toggle toggle = t.GetComponent<Toggle>();
+					toggle.onValueChanged.AddListener(value =>
+					{
+						Master.INSTANCE.Trail = value;
 					});
 					break;
 			}
@@ -100,8 +142,10 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 		
 	}
 
-	public void selectChange(Base selected)
+	void Update()
 	{
+		if(UI.UIHover) return;
+		Selectable selected = Master.INSTANCE.Selected;
 		// Resets the selection UI.
 		foreach(Transform child in selection.transform) Destroy(child.gameObject);
 		// If nothing is selected, then get turn off the selection pane and return.
@@ -121,7 +165,8 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 			y += 10;
 			// Gets the instance of the current class in the selected object.
 			var component = selected.GetComponent(clazz);
-			component = component == null ? component : selected.GetComponentInChildren(clazz);
+			if(component == null)
+				component = selected.GetComponentInChildren(clazz);
 			// If the selected object actually has that class.
 			if(component != null)
 			{
@@ -130,7 +175,7 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 				foreach(PropertyInfo value in values)
 				{
 					y += 22;
-					drawValues(value, selected.gameObject.GetComponent(clazz), y);
+					drawValues(value, component, y);
 				}
 			}			
 		}
@@ -147,7 +192,8 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 			input.contentType = InputField.ContentType.IntegerNumber;
 			input.onValueChanged.AddListener(val =>
 			{
-				if(val != null) value.SetValue(selected, Int32.Parse(val), null);
+				int x;
+				if(val != null && Int32.TryParse(val, out x)) value.SetValue(selected, x, null);
 			});
 			input.onEndEdit.AddListener(val =>
 			{
@@ -162,7 +208,8 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 			input.contentType = InputField.ContentType.DecimalNumber;
 			input.onValueChanged.AddListener(val =>
 			{
-				if(val != null) value.SetValue(selected, float.Parse(val), null);
+				float x;
+				if(val != null && float.TryParse(val, out x)) value.SetValue(selected, x, null);
 			});
 			input.onEndEdit.AddListener(val =>
 			{
@@ -195,25 +242,28 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 			
 			x.onValueChanged.AddListener(val =>
 			{
-				if(val == null) return;
+				float x1;
+				if(val == null || !float.TryParse(val, out x1)) return;
 				Vector3 v = (Vector3) value.GetValue(selected, null);
-				v.x = float.Parse(val);
+				v.x = x1;
 				value.SetValue(selected, v, null);
 			});
 			
 			y.onValueChanged.AddListener(val =>
 			{
-				if(val == null ) return;
+				float y1;
+				if(val == null || !float.TryParse(val, out y1)) return;
 				Vector3 v = (Vector3) value.GetValue(selected, null);
-				v.y = float.Parse(val);
+				v.y = y1;
 				value.SetValue(selected, v, null);
 			});
 			
 			z.onValueChanged.AddListener(val =>
 			{
-				if(val == null) return;
+				float z1;
+				if(val == null || !float.TryParse(val, out z1)) return;
 				Vector3 v = (Vector3) value.GetValue(selected, null);
-				v.z = float.Parse(val);
+				v.z = z1;
 				value.SetValue(selected, v, null);
 			});
 
@@ -245,11 +295,6 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 		g.transform.position += new Vector3(0, -yPos, 0);
 	}
 
-	// Update is called once per frame
-	void Update ()
-	{
-		
-	}
 
 	public void OnPointerEnter(PointerEventData eventData)
 	{

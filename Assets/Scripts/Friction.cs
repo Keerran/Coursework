@@ -6,6 +6,7 @@ using UnityEngine;
 public class Friction : MonoBehaviour
 {
 	private float coefficient;
+	private Vector3 force;
 	
 	//Coefficient of Friction
 	[SerializeField]
@@ -22,11 +23,33 @@ public class Friction : MonoBehaviour
 
 	void Start()
 	{
-		
+		Coefficient = 0.1f;	
 	}
 
-	public void applyForce(Base obj)
+	void OnTriggerStay(Collider other)
 	{
-		
+		if(!Master.INSTANCE.isPlaying) return;
+		Base b = this.GetComponentInParent<Base>();
+		Vector3 x = (other.ClosestPoint(transform.position)-transform.position).normalized;
+		float reaction = Vector3.Dot(b.Force, x);
+		float max = coefficient * reaction;
+		Vector3 velocity = (b.Velocity - Vector3.Dot(b.Velocity,x)*x).normalized;
+		float p = Vector3.Dot(b.Force, velocity);
+		b.Force += force;
+		if(max > p && velocity.magnitude == 0)
+		{
+			force = p * velocity;
+		}
+		else
+		{
+			force = max * velocity;
+		}
+		b.Force -= force;
+	}
+	
+	void OnTriggerExit(Collider other)
+	{
+		Base b = this.GetComponentInParent<Base>();
+		b.Force += force;
 	}
 }

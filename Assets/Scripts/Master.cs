@@ -10,11 +10,13 @@ public class Master : MonoBehaviour
 	// This is the only instance of master.
 	public static Master INSTANCE { get; private set; }
 
-	public delegate void onSelectChange(Base selected);
+	public delegate void onSelectChange(Selectable selected);
 	public delegate void onPlayPause(bool playing);
+	public delegate void onTrailChange(bool trail);
 
 	public event onSelectChange selectChange;
 	public event onPlayPause playPause;
+	public event onTrailChange trailChange;
 
 	private bool playing;
 
@@ -27,11 +29,30 @@ public class Master : MonoBehaviour
 			playPause(playing);
 		}
 	}
-	public float speed = 1;
-	
-	private Base selected;
 
-	public Base Selected
+	private bool trail; 
+
+	public bool Trail
+	{
+		get { return playing;  }
+		set
+		{
+			trail = value;
+			trailChange(trail);
+		}
+	}
+
+	public float speed = 1;
+	public float Speed
+	{
+		get { return speed;}
+		set { speed = Mathf.Clamp(value, 0f, 1f); }
+
+	}
+	
+	private Selectable selected;
+
+	public Selectable Selected
 	{
 		get
 		{
@@ -40,9 +61,9 @@ public class Master : MonoBehaviour
 		set
 		{
 			if(value == selected) return;
-			if(value != null)
+			if(value != null && value.GetComponentInParent<Base>() != null)
 				value.transform.FindChild("Sphere").GetComponent<Renderer>().material.shader = Shader.Find("Custom/Outline");
-			if(selected != null)
+			if(selected != null && selected.GetComponentInParent<Base>() != null)
 				selected.transform.FindChild("Sphere").GetComponent<Renderer>().material.shader = Shader.Find("Standard");
 			selected = value;
 			// Fire the selectChange event.
@@ -68,13 +89,14 @@ public class Master : MonoBehaviour
 		// If the ray hits anything...
 		if(Physics.Raycast(ray, out info) && Input.GetMouseButtonDown(0))
 		{
-			if(info.transform.name != "Sphere") return;
-			if(info.transform.parent == null || info.transform.parent.GetComponent<Base>() == null)
-			{
-				this.Selected = null;
-			}
+			//if(info.transform.name != "Sphere") return;
 			// Change the selected variable to the object that was clicked on.
-			this.Selected = info.transform.parent.GetComponent<Base>();
+			if(info.transform.parent == null)
+			{
+				this.Selected = info.transform.GetComponent<Selectable>();
+				return;
+			}
+			this.Selected = info.transform.parent.GetComponent<Selectable>();
 		}
 		else if(Input.GetMouseButtonDown(0))
 		{

@@ -10,7 +10,7 @@ public class ShowValue : Attribute
 {
     /// <summary>
     ///  This gets all the properties from a class that contain this attribute.
-    /// </summary>
+    /// </summary>\
     /// <typeparam name="T">The class from which to search.</typeparam>
     /// <returns>An array of the properties, sorted by the order given, if any.</returns>
     internal static PropertyInfo[] getValues<T>()

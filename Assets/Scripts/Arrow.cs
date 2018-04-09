@@ -52,7 +52,7 @@ public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
 	public enum Axis
 	{
-		X, Y, Z
+		X, Y, Z, Force
 	}
 
 	// This function is implemented from the IPointerDownHandler, and

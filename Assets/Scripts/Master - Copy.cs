@@ -1,8 +1,8 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-/*
+
 [System.Obsolete("", true)]
 public class MasterNoEvent : MonoBehaviour
 {
@@ -29,12 +29,40 @@ public class MasterNoEvent : MonoBehaviour
 
 	public event onSelectChange selectChange;
 
+	private float e;
 	// Use this for initialization
-	void Start()
+	void OnTriggerEnter(Collider other)
 	{
-		
+		if(!Master.INSTANCE.isPlaying) return;
+		Base b1 = GetComponentInParent<Base>();
+		Base b2 = other.gameObject.GetComponentInParent<Base>();
+		if(b2 == null)
+		{
+			if(other.gameObject.name == "Plane")
+			{
+				// Do plane stuff.
+				Vector3 x = (other.ClosestPoint(b1.transform.position) - b1.transform.position).normalized;
+				float u = Vector3.Dot(b1.Velocity, x);
+				float v = e * -u;
+				b1.Velocity = b1.Velocity + (v - u) * x;
+			}
+		}
+		else
+		{
+			float m1 = b1.Mass;
+			float m2 = b2.Mass;
+
+			Vector3 x = (b2.transform.position - b1.transform.position).normalized;
+
+			float u1 = Vector3.Dot(b1.Velocity, x);
+			float u2 = Vector3.Dot(b2.Velocity, x);
+
+			float v1 = ((m1 - m2 * e) * u1 + m2 * (1 + e) * u2) / (m1 + m2);
+
+			b1.Velocity = b1.Velocity + (v1 - u1) * x;
+		}
 	}
-	
+
 	// Update is called once per frame
 	void Update()
 	{
@@ -83,4 +111,6 @@ public class MasterNoEvent : MonoBehaviour
 			}
 		}
 	}
-}*/
+}
+
+*/
