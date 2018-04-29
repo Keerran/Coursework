@@ -60,11 +60,15 @@ public class Master : MonoBehaviour
 		}
 		set
 		{
+			// If they clicked the object that is already selected, return.
 			if(value == selected) return;
+			// Apply the outline if its a particle object.
 			if(value != null && value.GetComponentInParent<Base>() != null)
 				value.transform.FindChild("Sphere").GetComponent<Renderer>().material.shader = Shader.Find("Custom/Outline");
+			// Remove the outline from the current selected object.
 			if(selected != null && selected.GetComponentInParent<Base>() != null)
 				selected.transform.FindChild("Sphere").GetComponent<Renderer>().material.shader = Shader.Find("Standard");
+			// Set the selected object to the new object.
 			selected = value;
 			// Fire the selectChange event.
 			if(selectChange != null) selectChange(this.Selected);

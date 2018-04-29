@@ -13,20 +13,27 @@ public class SaveLoad
     
     public static void Save()
     {
+        // Add the current game to the savedGames list.
         savedGames.Add(Game.current);
+        // Open the file.
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Create(Application.persistentDataPath + "/savedGames.gd");
-        Debug.Log(Application.persistentDataPath + "/savedGames.gd");
+        // Write all the saved games to the file.
         bf.Serialize(file, savedGames);
+        //Close the file.
         file.Close();
     }
     public static void Load()
     {
-        Debug.Log(Application.persistentDataPath);
+        // If the file exists...
         if(File.Exists(Application.persistentDataPath + "/savedGames.gd")) {
+            // Open the file.
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Application.persistentDataPath + "/savedGames.gd", FileMode.Open);
+            // Get all the games from the file, casting them to a list
+            // of Game object.
             savedGames = (List<Game>)bf.Deserialize(file);
+            // Close the file.
             file.Close();
         }
     }

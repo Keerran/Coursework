@@ -99,12 +99,15 @@ public class Base : Selectable
 		if(colliders.Length > 0 || didHit)
 		{
 			float min = 0;
+			// If the object is going to hit another, then make sure it doesn't go through it.
 			if(didHit)
 			{
 				min = hit.distance;
 			}
+			// If the object is colliding with another...
 			foreach(Collider collider in colliders)
 			{
+				//...and the object is moving away from the other one...
 				Vector3 point = collider.ClosestPoint(transform.position);
 				float u = Vector3.Dot(Velocity, (point - transform.position).normalized);
 				if(u < 0)
@@ -113,6 +116,7 @@ public class Base : Selectable
 				}
 				else
 				{
+					//... then make sure it goes away from the object.
 					Velocity -= u * (point - transform.position).normalized;
 				}
 				pos += Velocity * td;
