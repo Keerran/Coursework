@@ -47,6 +47,11 @@ public class Base : Selectable
 
 	void Start()
 	{
+		Init();
+	}
+	
+	public void Init()
+	{
 		Mass = 1;
 		resetForce();
 		arrow = null;
@@ -86,9 +91,6 @@ public class Base : Selectable
 		// to get the in-game time between the last frame.
 		float td = Time.deltaTime * Master.INSTANCE.speed;
 		// Uses a = F/m and a = dv/dt to get velocity after td seconds.
-		/*vel.x += force.x * td / Mass;
-		vel.y += force.y * td / Mass;
-		vel.z += force.z * td / Mass;*/
 		Velocity += force * (td / Mass);
 		Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5f, 1 << 8);
 		
@@ -121,28 +123,23 @@ public class Base : Selectable
 		{
 			pos += Velocity * td;
 		}
-		/*pos.x += vel.x * td;
-		pos.y += vel.y * td;
-		pos.z += vel.z * td;
-		
-		/*RaycastHit hitInfo = new RaycastHit();
-		bool move = Physics.Raycast(pos, offset.normalized, out hitInfo, offset.magnitude);
-		if(move)
-			pos = hitInfo.point + (this.transform.localScale/2);*/
 		
 		this.transform.position = pos;
 	}
 
+	// This method is called when the game is paused or played.
 	public void onPlayPause(bool playing)
 	{
 		bool t = playing && Master.INSTANCE.Trail;
 		TrailRenderer trailRenderer = GetComponent<TrailRenderer>();
 		trailRenderer.enabled = t;
 		trailRenderer.Clear();
-		bool f = !playing && force == Vector3.zero;
+		bool f = !(playing || force == Vector3.zero);
 		arrow.gameObject.SetActive(f);
+		setArrow();
 	}
 
+	// This method is called when the trail variable is changed.
 	public void onTrailChange(bool trail)
 	{
 		if(!Master.INSTANCE.isPlaying) return;
@@ -168,14 +165,9 @@ public class Base : Selectable
 	public void setArrow()
 	{
 		
-		arrow.gameObject.SetActive(force == Vector3.zero);
-		/*float xAngle = Vector3.Angle(Vector3.right, Vector3.Project(Vector3.right,force));
-		float yAngle = Vector3.Angle(Vector3.up, Vector3.Project(Vector3.up,force));
-		float zAngle = Vector3.Angle(Vector3.forward, Vector3.Project(Vector3.forward ,force));*/
 
 		// Sets the rotation of the arrow to point where the force is going.
 		arrow.transform.rotation = Quaternion.FromToRotation(transform.forward, force);;
-		//arrow.transform.localEulerAngles = new Vector3(xAngle, yAngle, zAngle - 45);
 
 		// This essentially sets the magnitude of the vector to the radius of the sphere.
 		// This is the position of the arrow.

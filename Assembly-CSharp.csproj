@@ -52,18 +52,24 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Arrow.cs" />
     <Compile Include="Assets\Scripts\Base.cs" />
+    <Compile Include="Assets\Scripts\BaseObj.cs" />
     <Compile Include="Assets\Scripts\CamControl.cs" />
     <Compile Include="Assets\Scripts\Col.cs" />
     <Compile Include="Assets\Scripts\Constants.cs" />
     <Compile Include="Assets\Scripts\Drag.cs" />
     <Compile Include="Assets\Scripts\Friction.cs" />
+    <Compile Include="Assets\Scripts\Game.cs" />
     <Compile Include="Assets\Scripts\Master - Copy.cs" />
     <Compile Include="Assets\Scripts\Master.cs" />
     <Compile Include="Assets\Scripts\MouseDrag.cs" />
+    <Compile Include="Assets\Scripts\Particle.cs" />
     <Compile Include="Assets\Scripts\PlaneBase.cs" />
+    <Compile Include="Assets\Scripts\PlaneObj.cs" />
+    <Compile Include="Assets\Scripts\SaveLoad.cs" />
     <Compile Include="Assets\Scripts\Selectable.cs" />
     <Compile Include="Assets\Scripts\ShowValue.cs" />
     <Compile Include="Assets\Scripts\UI.cs" />
+    <Compile Include="Assets\Scripts\Vector.cs" />
     <None Include="Assets\Shaders\Outlined-Silhouette Only.shader" />
     <Reference Include="UnityEngine.UI">
       <HintPath>I:/Other Installs/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

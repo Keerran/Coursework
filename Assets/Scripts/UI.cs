@@ -35,18 +35,55 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 	// Use this for initialization
 	void Start ()
 	{
-		//Master.INSTANCE.selectChange += selectChange;
-
 		foreach(Transform t in transform)
 		{
 			switch(t.name)
 			{
 					case "Selection":
 						selection = t.gameObject;
+						// Makes sure the inspector window is disabled by default.
 						selection.GetComponent<Image>().enabled = false;
 						break;
 					case "Time":
+						// Sets the time variable to the gameobject to be used later.
 						time = t.gameObject;
+						break;
+					case "SaveLoad":
+						// Loads all the games from the file and puts them in SaveLoad.savedGames.
+						SaveLoad.Load();
+						// Gets the Content UI element which is a great grandchild of t.
+						Transform d = t.Find("Scroll View").Find("Viewport").Find("Content");
+						// Loops through each saved game.
+						for(int i = 0; i < SaveLoad.savedGames.Count; i++)
+						{
+							// Creates a new button and casts it (safely) to a GameObject.
+							GameObject g = Instantiate(Resources.Load("Button")) as GameObject;
+							// Sets the parent to the Content UI element.
+							g.transform.parent = d;
+							// Sets the position based on its index.
+							RectTransform pos = g.GetComponent<RectTransform>();
+							pos.localPosition = new Vector3(0, -(15 + i * 30), 0);
+							// This fixes a bug in Unity's implementation of Mono
+							// that means that you cannot use variables from outer scopes
+							// in delegates.
+							int j = i;
+							// Gets the button script from the current button.
+							Button b = g.GetComponent<Button>();
+							// Sets the text to the index.
+							b.GetComponentInChildren<Text>().text = i.ToString();
+							// When the button is clicked it will load the required game.
+							b.onClick.AddListener(delegate
+							{
+								LoadGame(j);
+							});
+						}
+						
+						// Finds the save button and sets it so when its clicked
+						// it will save the current game.
+						Button button = t.FindChild("Save").GetComponent<Button>();
+						Debug.Log(button);
+						button.onClick.AddListener(() =>
+							SaveGame());
 						break;
 			}
 		}
@@ -56,10 +93,12 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 			switch(t.name)
 			{
 				case "Play":
+					// When the button is clicked it will fire the onPlayClick event.
 					t.GetComponent<Button>().onClick.AddListener(() => { onPlayClick(t); });
 					break;
 				case "Speed":
 					InputField input = t.GetComponentInChildren<InputField>();
+					// Sets the game speed to the value in the text box when changed.
 					input.onValueChanged.AddListener(value =>
 					{
 						Master.INSTANCE.speed = float.Parse(value);
@@ -86,19 +125,24 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 					Button button = t.GetComponent<Button>();
 					button.onClick.AddListener(() =>
 					{
+						// Creates a normal particle.
 						GameObject g = (GameObject)Instantiate(Resources.Load("Object"));
 						RaycastHit info;
+						// Raycasts forward from the camera by 10.
 						Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width, Screen.height) / 2);
 						if(Physics.Raycast(ray, out info, 10))
 						{
+							// If it hits, set the location of the particle to the hit point...
 							g.transform.position = info.point + info.normal.normalized * 0.5f;
 						}
 						else
 						{
+							// ... otherwise place it 2 units in front of the camera.
 							g.transform.position = ray.origin + ray.direction * 2;
 						}
 						if(Master.INSTANCE.isPlaying)
 						{
+							// Sets all the arrows on the object to the correct state...
 							foreach(Transform a in g.transform)
 							{
 								Arrow arrow = a.GetComponent<Arrow>();
@@ -107,6 +151,13 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 									arrow.onPlayPause(false);
 								}
 							}
+						}
+						else
+						{
+							//... and do the same with the trail.
+							TrailRenderer trailRenderer = g.GetComponent<TrailRenderer>();
+							trailRenderer.enabled = false;
+							trailRenderer.Clear();
 						}
 					});
 					break;
@@ -119,9 +170,9 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 					break;
 				case "Trail":
 					Toggle toggle = t.GetComponent<Toggle>();
-					toggle.onValueChanged.AddListener(value =>
+					toggle.onValueChanged.AddListener(trail =>
 					{
-						Master.INSTANCE.Trail = value;
+						Master.INSTANCE.Trail = trail;
 					});
 					break;
 			}
@@ -284,6 +335,8 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
 		if(g == null) return;
 		
+		// Sets the label for the current value, since the label
+		// has the tag "Tag".
 		foreach(Transform tf in  g.transform)
 		{
 			if(tf.CompareTag("Tag"))
@@ -304,5 +357,77 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 	public void OnPointerExit(PointerEventData eventData)
 	{
 		UIHover = false;
+	}
+	
+	public void SaveGame()
+	{
+		Game g = Game.current = new Game();
+		Base[] b = GameObject.FindObjectsOfType<Base>();
+		g.particles = new Particle[b.Length];
+		for(int i = 0; i < b.Length; i++)
+		{
+			// Creates a BaseObj object for each particle and
+			// sets its position, mass, force, velocity, coefficient of friction.
+			Base bse = b[i];
+			g.particles[i] = new Particle(bse.Position,
+				bse.Mass,
+				bse.Force,
+				bse.Velocity,
+				bse.gameObject
+					.GetComponentInChildren<Friction>()
+					.Coefficient
+			);
+		}
+		// Does the same with the planes, except only setting
+		// the position and rotation.
+		PlaneBase[] p = GameObject.FindObjectsOfType<PlaneBase>();
+		g.planes = new PlaneObj[b.Length];
+		for(int i = 0; i < p.Length; i++)
+		{
+			PlaneBase pb = p[i];
+			g.planes[i] = new PlaneObj(pb.Position, pb.Rotation);
+		}
+		// Puts it into the file.
+		SaveLoad.Save();
+	}
+
+	public void LoadGame(int value)
+	{
+		// Destroys all the planes and particles in the current scene.
+		foreach(Selectable obj in FindObjectsOfType<Selectable>())
+		{
+			Destroy(obj.gameObject);
+		}
+		// Gets the required game.
+		Game game = SaveLoad.savedGames[value];
+		foreach(Particle p in game.particles)
+		{
+			// Creates a blank particle.
+			GameObject g = GameObject.Instantiate(Resources.Load("Object")) as GameObject;
+			// Gets the base and friction scripts.
+			Base b = g.GetComponent<Base>();
+			Friction f = g.GetComponentInChildren<Friction>();
+			
+			// Calls the starting method and sets the
+			// position, coefficient, mass, force, velocity.
+			b.Init();
+			b.Position = p.position.toVector();
+			f.Coefficient = p.coefficient;
+			b.Mass = p.mass;
+			b.Force = p.force.toVector();
+			b.Velocity = p.velocity.toVector();
+			
+		}
+		// Do the same for all the planes.
+		foreach(PlaneObj plane in game.planes)
+		{
+			GameObject g = GameObject.Instantiate(Resources.Load("Plane")) as GameObject;
+			PlaneBase b = g.GetComponent<PlaneBase>();
+			b.Rotation = plane.rotation.toVector();
+			b.Position = plane.position.toVector();
+			
+		}
+		// Sets the current game to the new game.
+		Game.current = game;
 	}
 }

@@ -38,6 +38,8 @@ public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 	
 	public void onPlayPause(bool isPlaying)
 	{
+		// Removes the arrows from the scene if the game
+		// is not paused.
 		this.gameObject.SetActive(!isPlaying);
 	}
 
@@ -49,7 +51,8 @@ public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 		if(renderer.material.color == Color.yellow && Input.GetMouseButtonUp(0))
 			renderer.material.color = getColor(axis);
 	}
-
+	
+	// An enumeration for all the types of arrow.
 	public enum Axis
 	{
 		X, Y, Z, Force
@@ -62,6 +65,8 @@ public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 		MouseDrag parent = this.transform.parent.GetComponentInChildren<MouseDrag>();
 		if(parent.doMove) return;
 		parent.doMove = true;
+		// Sets the direction variable to the axis
+		// dependant on the arrow type.
 		switch(axis)
 		{
 			case Axis.X:
@@ -74,6 +79,7 @@ public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 				parent.dir = Vector3.forward;
 				break;
 		}
+		// Sets the color of the arrow to yellow when it is clicked.
 		GetComponent<Renderer>().material.color = Color.yellow;
 	}
 

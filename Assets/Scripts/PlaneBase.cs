@@ -8,6 +8,8 @@ public class PlaneBase : Selectable
 	{
 		UI.registerClass<PlaneBase>();
 	}
+	
+	
 
 	[ShowValue]
 	public Vector3 Rotation
