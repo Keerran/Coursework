@@ -31,6 +31,7 @@ public class Arrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 	/// Use this for initialization
 	void Start()
 	{
+		// Add the playPause handler of this class to the delegates.
 		Master.INSTANCE.playPause += onPlayPause;
 		// Set the color of the arrow depending on its axis.
 		GetComponent<Renderer>().material.color = getColor(axis);

@@ -236,22 +236,29 @@ public class UI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 	{
 		Type t = value.PropertyType;
 		GameObject g = null;
+		// If the property type is an int...
 		if(t == typeof(int))
 		{
+			// ... instantiate the Number input field prefab...
 			g = (GameObject) Instantiate(Resources.Load("Number"), selection.transform);
 			InputField input = g.GetComponentInChildren<InputField>();
+			// Change the input field type to an integer.
 			input.contentType = InputField.ContentType.IntegerNumber;
 			input.onValueChanged.AddListener(val =>
 			{
 				int x;
+				// If the value is not null and is a valid int set it to the value.
 				if(val != null && Int32.TryParse(val, out x)) value.SetValue(selected, x, null);
 			});
 			input.onEndEdit.AddListener(val =>
 			{
+				// Once the user is done editing the text, set it to whatever the setter sets it to.
+				// This is to avoid values going out of the range of the value.
 				input.text = value.GetValue(selected, null).ToString();
 			});
 			input.text = value.GetValue(selected, null).ToString();
 		}
+		// Do the same as above for all the other supported data types.
 		else if(t == typeof(float))
 		{
 			g = (GameObject) Instantiate(Resources.Load("Number"), selection.transform);

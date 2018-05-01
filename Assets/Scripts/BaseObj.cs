@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+// Makes Unity able to save instances of this class.
 [System.Serializable]
 public class BaseObj
 {

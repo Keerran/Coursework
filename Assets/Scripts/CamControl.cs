@@ -25,17 +25,24 @@ public class CamControl : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		// If the RMB is held
 		if(Input.GetMouseButton(1))
 		{
+			// Set the cursor to invisible.
 			Cursor.visible = false;
+			// Change the last mouse to the current mouse position.
 			if(lastMouse == null)
 			{
 				lastMouse = Input.mousePosition;
 			}
+			// Get the change in mouse movement.
 			Vector3 deltaMouse = Input.mousePosition - (Vector3) lastMouse;
+			// Multiply it by the set sensitivity.
 			deltaMouse *= sensitivity;
+			// Get the x and y change in mouse and set it to the rotation.
 			float x = transform.eulerAngles.x - deltaMouse.y;
 			float y = transform.eulerAngles.y + deltaMouse.x;
+			// Cap the angle.
 			if(x < 270 && x > 90)
 			{
 				if(Mathf.Abs(x - 270) > Mathf.Abs(x - 90))
@@ -47,8 +54,10 @@ public class CamControl : MonoBehaviour
 					x = 270f;
 				}
 			}
+			// Set the rotation of the object.
 			deltaMouse = new Vector3(x, y, 0);
 			transform.eulerAngles = deltaMouse;
+			// Set the lastMouse to the current mouse for the next frame.
 			lastMouse = Input.mousePosition;
 		}
 		else if(Input.GetMouseButton(2))
